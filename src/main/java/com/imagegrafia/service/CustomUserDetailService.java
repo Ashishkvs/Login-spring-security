@@ -8,13 +8,14 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.imagegrafia.entity.Role;
-import com.imagegrafia.entity.User;
+import com.imagegrafia.entity.UserAccount;
 import com.imagegrafia.repository.UserRepository;
 
 @Service
@@ -26,17 +27,16 @@ public class CustomUserDetailService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		// TODO Auto-generated method stub
-		User user = userRepository.findByEmail(email);
-		if (user == null) {
-			throw new UsernameNotFoundException("User doesn't Exists " + email);
+		UserAccount userAccount = userRepository.findByEmail(email.toLowerCase());
+		if (userAccount == null) {
+			throw new UsernameNotFoundException("UserAccount doesn't Exists " + email);
 		}
-		boolean enabled = true;
-		boolean accountNonExpired = true;
-		boolean credentialsNonExpired = true;
-		boolean accountNonLocked = true;
-		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
-				enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, getAuthorities(user.getRoles()));
+		//From entity to SpringSecurity type UserDetails implemented class User
+		return buildSpringSecurityUser(userAccount);
+	}
+	private User buildSpringSecurityUser(UserAccount userAccount) {
+		return new User(userAccount.getEmail(), userAccount.getPassword(),
+				userAccount.isEnabled(), userAccount.isAccountNonExpired(), userAccount.isCredentialsNonExpired(), userAccount.isAccountNonLocked(), getAuthorities(userAccount.getRoles()));
 	}
 
 	private static List<GrantedAuthority> getAuthorities(List<Role> roles) {

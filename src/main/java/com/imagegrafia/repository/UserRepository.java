@@ -3,11 +3,11 @@ package com.imagegrafia.repository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.imagegrafia.entity.User;
+import com.imagegrafia.entity.UserAccount;
 
 @Repository
-public interface UserRepository extends CrudRepository<User, Integer> {
+public interface UserRepository extends CrudRepository<UserAccount, Integer> {
 
-	User findByEmail(String email);
+	UserAccount findByEmail(String email);
 
 }

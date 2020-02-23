@@ -7,9 +7,11 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Data
+@ToString(exclude="userAccount")
 public class Role {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -17,7 +19,7 @@ public class Role {
 	private String role;
 	
 	@ManyToOne
-	private User user;
+	private UserAccount userAccount;
 	
 
 }

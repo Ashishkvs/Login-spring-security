@@ -19,17 +19,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+	/**
+	 * This is spring security provided interface will be implemented by
+	 * CustomUserDetailService
+	 */
 	@Autowired
 	private UserDetailsService customUserDetailService;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.httpBasic().and().authorizeRequests()
-		.antMatchers("/h2-console**").permitAll().antMatchers("/api/**")
-				.hasAnyRole("ADMIN").and().csrf().disable();
 
-		http.authorizeRequests().and().formLogin();
+		http.authorizeRequests().antMatchers("/h2-console/**").permitAll().antMatchers("/admin**").hasRole("ADMIN")
+				.anyRequest().authenticated().and().formLogin().and().csrf().disable();
 
+		// H2 console
 		http.headers().frameOptions().sameOrigin();
 
 	}
@@ -39,6 +42,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
 	}
 
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+	
 	/*
 	 * @Bean public DaoAuthenticationProvider authProvider() {
 	 * DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -46,11 +54,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	 * authProvider.setPasswordEncoder(new BCryptPasswordEncoder()); return
 	 * authProvider; }
 	 */
-
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
 
 	/*
 	 * @Bean public PasswordEncoder passwordEncoder() { PasswordEncoder encoder =

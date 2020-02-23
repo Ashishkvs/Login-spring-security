@@ -14,16 +14,20 @@ import lombok.ToString;
 
 @Entity
 @Data
-@ToString(exclude="user")
+@ToString(exclude="roles")
 @SequenceGenerator(initialValue=1,name="seq",allocationSize=100)
-public class User {
+public class UserAccount {
 	@Id
 	@GeneratedValue(strategy=GenerationType.SEQUENCE ,generator="seq")
 	private int id;
 	private String email;
 	private String name;
 	private String password;
+	private boolean enabled;
+	private boolean accountNonExpired;
+	private boolean credentialsNonExpired;
+	private boolean accountNonLocked;
 	
-	@OneToMany(mappedBy="user")
+	@OneToMany(mappedBy="userAccount")
 	private List<Role> roles;
 }

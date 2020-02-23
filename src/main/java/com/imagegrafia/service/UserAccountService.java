@@ -1,34 +1,39 @@
 package com.imagegrafia.service;
 
-import java.util.Arrays;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.imagegrafia.entity.Role;
-import com.imagegrafia.entity.User;
+import com.imagegrafia.entity.UserAccount;
 import com.imagegrafia.repository.RoleRepository;
 import com.imagegrafia.repository.UserRepository;
 
 @Service
-public class UserService {
+public class UserAccountService {
 	@Autowired
 	UserRepository userRepository;
 	@Autowired
 	RoleRepository roleRepository;
 
-	public User createUser(User user) {
+	public UserAccount createUser(UserAccount user) {
+		user.setEmail(user.getEmail().toLowerCase());
 		String encoded = new BCryptPasswordEncoder().encode(user.getPassword());
 		user.setPassword(encoded);
-		User newUser = userRepository.save(user);
-		
+
+		// SET Additional param for Authentication
+		user.setEnabled(true);
+		user.setAccountNonExpired(true);
+		user.setCredentialsNonExpired(true);
+		user.setAccountNonLocked(true);
+		UserAccount newUser = userRepository.save(user);
+
+		// SET DEFAULT ROLE FOR NEW USER
 		Role role = new Role();
 		role.setRole("ROLE_USER ");
-		role.setUser(newUser);
+		role.setUserAccount(newUser);
 		roleRepository.save(role);
-		
+
 		return newUser;
 	}
 

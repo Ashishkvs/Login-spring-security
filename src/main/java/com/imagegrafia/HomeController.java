@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.imagegrafia.entity.Role;
-import com.imagegrafia.entity.User;
-import com.imagegrafia.service.UserService;
+import com.imagegrafia.entity.UserAccount;
+import com.imagegrafia.service.UserAccountService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HomeController {
 	@Autowired
-	UserService userService;
+	UserAccountService userService;
 
 	@GetMapping("/")
 	public String greeting(@RequestParam(name = "name", required = false, defaultValue = "World") String name,
@@ -31,14 +31,20 @@ public class HomeController {
 
 	@GetMapping("/reg")
 	public String regForm(Model model) {
-		model.addAttribute("user", new User());
+		model.addAttribute("user", new UserAccount());
 		return "user";
+	}
+	
+	@GetMapping("/admin")
+	public String adminForm(Model model) {
+		model.addAttribute("user", new UserAccount());
+		return "admin";
 	}
 
 	@PostMapping("/reg")
-	public String userRegForm(@ModelAttribute User user, Model model) {
-		model.addAttribute("user", new User());
-		log.info("User obj: {} ", user);
+	public String userRegForm(@ModelAttribute UserAccount user, Model model) {
+		model.addAttribute("user", new UserAccount());
+		log.info("UserAccount obj: {} ", user);
 		userService.createUser(user);
 		return "user";
 	}
