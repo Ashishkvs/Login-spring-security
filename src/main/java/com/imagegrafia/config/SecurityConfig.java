@@ -1,17 +1,18 @@
 package com.imagegrafia.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,30 +24,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	 * This is spring security provided interface will be implemented by
 	 * CustomUserDetailService
 	 */
-	@Autowired
-	private UserDetailsService customUserDetailService;
+//	@Autowired
+//	private UserDetailsService customUserDetailService;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-
-		http.authorizeRequests().antMatchers("/h2-console/**").permitAll().antMatchers("/admin**").hasRole("ADMIN")
-				.anyRequest().authenticated().and().formLogin().and().csrf().disable();
-
-		// H2 console
-		http.headers().frameOptions().sameOrigin();
-
+		http.cors().and().csrf().disable().authorizeRequests().antMatchers("/login").permitAll().anyRequest().authenticated().and()
+				.httpBasic();
 	}
+
+	/*
+	 * @Override protected void configure(AuthenticationManagerBuilder auth) throws
+	 * Exception { auth.userDetailsService(customUserDetailService).passwordEncoder(
+	 * passwordEncoder()); }
+	 */
+
+//	@Bean
+//	public PasswordEncoder passwordEncoder() {
+//		return new BCryptPasswordEncoder();
+//	}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(customUserDetailService).passwordEncoder(passwordEncoder());
+		auth.inMemoryAuthentication().withUser("user").password("password").roles("USER");
 	}
-
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-	
 	/*
 	 * @Bean public DaoAuthenticationProvider authProvider() {
 	 * DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -55,9 +56,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	 * authProvider; }
 	 */
 
-	/*
-	 * @Bean public PasswordEncoder passwordEncoder() { PasswordEncoder encoder =
-	 * new BCryptPasswordEncoder(); return NoOpPasswordEncoder.getInstance();
-	 * PasswordEncoderFactories.createDelegatingPasswordEncoder(); return encoder; }
-	 */
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		PasswordEncoder encoder = new BCryptPasswordEncoder();
+		return NoOpPasswordEncoder.getInstance();
+//		PasswordEncoderFactories.createDelegatingPasswordEncoder();
+//		return encoder;
+	}
+	/*@Bean
+    CorsConfigurationSource corsConfigurationSource() 
+    {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }*/
+
 }
